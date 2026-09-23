@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, ArrowUp, FileText, MessageCircle, TrendingUp } from "lucide-react";
+import { ArrowDown, ArrowUp, FileText, TrendingUp } from "lucide-react";
 import { fetchReports, type Report } from "@/lib/data.functions";
 import { fetchTpiForecasts, type TpiForecastRow } from "@/lib/tpi.functions";
 
@@ -89,13 +89,13 @@ function Dashboard() {
             to report.
           </p>
         </Link>
-        <Link to="/chat" className="card hover:border-cpi-blue transition-colors">
+        <Link to="/reports" className="card hover:border-cpi-blue transition-colors">
           <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
-            <MessageCircle size={20} />
-            Ask a question
+            <FileText size={20} />
+            Source reports
           </h3>
           <p className="text-sm text-gray-600">
-            e.g. "Roughly how much will tender prices rise in the North West from 2026 to 2029?"
+            Every report the forecasts come from, by publisher and period.
           </p>
         </Link>
       </div>

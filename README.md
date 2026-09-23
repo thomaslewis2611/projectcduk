@@ -5,7 +5,6 @@ quarterly reports, starting with Gardiner & Theobald's Tender Price Indicator.
 
 - **Forecasts**: the latest forecast for each region, how it was revised since the
   previous report, and how each year's forecast has moved from report to report.
-- **AI chat**: ask questions about the forecasts (OpenAI).
 - **Admin import**: a single admin imports report PDFs (upload page or a local script).
 
 See [BACKLOG.md](BACKLOG.md) for status and next steps.
@@ -51,9 +50,8 @@ it won't work on Cloudflare Workers until the PDF library is replaced (BACKLOG 1
 | `src/lib/ingest.server.ts`  | PDF → text → forecasts → Supabase (shared by upload + script) |
 | `scripts/import-reports.ts` | Local bulk import                                             |
 | `src/lib/tpi.functions.ts`  | Forecast queries                                              |
-| `src/lib/chat.functions.ts` | AI chat                                                       |
 | `src/lib/admin.server.ts`   | Single-admin check (`ADMIN_EMAIL`, verified server-side)      |
-| `src/routes/`               | Pages: dashboard, forecasts, reports, chat, login             |
+| `src/routes/`               | Pages: dashboard, forecasts, reports, login                   |
 | `supabase/migrations/`      | Schema, row-level security, views                             |
 
 ## Checks

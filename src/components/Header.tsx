@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Home, Upload, BarChart3, MessageCircle, LogIn, LogOut, TrendingUp } from "lucide-react";
+import { Home, Upload, LogIn, LogOut, TrendingUp } from "lucide-react";
 import { signOut, useAdmin } from "@/lib/use-admin";
 
 export default function Header() {
@@ -11,7 +11,6 @@ export default function Header() {
     { to: "/", label: "Dashboard", icon: Home },
     { to: "/forecasts", label: "Forecasts", icon: TrendingUp },
     { to: "/reports", label: "Reports", icon: Upload },
-    { to: "/chat", label: "AI Chat", icon: MessageCircle },
   ];
 
   return (
