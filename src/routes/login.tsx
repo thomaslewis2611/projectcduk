@@ -33,9 +33,7 @@ function LoginPage() {
         <LogIn size={20} />
         Admin sign in
       </h1>
-      <p className="text-sm text-gray-500 mb-4">
-        Only the site admin can upload or delete reports.
-      </p>
+      <p className="text-sm text-gray-500 mb-4">Only the site admin can manage reports.</p>
       <form onSubmit={onSubmit} className="space-y-3">
         <input
           type="email"
