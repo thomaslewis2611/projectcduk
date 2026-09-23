@@ -34,11 +34,17 @@ export default function ReportUploader({ onUploadSuccess }: ReportUploaderProps)
     try {
       // Read file as base64 for server function
       const base64 = await readFileAsBase64(file);
-      await uploadAndParseReport({
+      const result = await uploadAndParseReport({
         data: { filename: file.name, base64 },
       });
 
-      setSuccess(`"${file.name}" uploaded and is being processed.`);
+      if (result.status === "no_data") {
+        setError(
+          `"${file.name}" was uploaded, but no data rows were recognised. The report layout may not be supported yet.`,
+        );
+      } else {
+        setSuccess(`"${file.name}" imported: ${result.dataPoints} data points.`);
+      }
       setFile(null);
       const input = document.getElementById("file-input") as HTMLInputElement;
       if (input) input.value = "";

@@ -12,22 +12,20 @@ import {
   Legend,
   ReferenceDot,
 } from "recharts";
-import { fetchComparison, fetchYears, type PriceIndex } from "@/lib/data.functions";
+import {
+  fetchBuildingTypes,
+  fetchComparison,
+  fetchRegions,
+  fetchYears,
+  type ComparisonRow,
+} from "@/lib/data.functions";
 import { TrendingUp, Filter } from "lucide-react";
 
-type CompareRow = {
-  id: number;
-  index_value: number | null;
-  price_per_sqft: number | null;
-  year: number | null;
-  quarter: string | null;
-  region: string | null;
-  building_type: string | null;
-};
-
 export default function IndexChart() {
-  const [data, setData] = React.useState<CompareRow[]>([]);
+  const [data, setData] = React.useState<ComparisonRow[]>([]);
   const [years, setYears] = React.useState<number[]>([]);
+  const [regions, setRegions] = React.useState<string[]>([]);
+  const [buildingTypes, setBuildingTypes] = React.useState<string[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [chartType, setChartType] = React.useState<"line" | "bar">("line");
 
@@ -37,23 +35,26 @@ export default function IndexChart() {
   const [selYear, setSelYear] = React.useState<number | "all">("all");
 
   React.useEffect(() => {
-    const loadYears = async () => {
-      const y = await fetchYears();
+    const loadOptions = async () => {
+      const [y, r, bt] = await Promise.all([fetchYears(), fetchRegions(), fetchBuildingTypes()]);
       setYears(y);
+      setRegions(r);
+      setBuildingTypes(bt);
     };
-    loadYears();
+    loadOptions();
   }, []);
 
   const loadData = async () => {
-    const params: Record<string, string | number | undefined> = {};
-    if (selRegion) params.region = selRegion;
-    if (selBuildingType) params.building_type = selBuildingType;
-    if (selYear !== "all") params.year = selYear;
+    const params = {
+      region: selRegion || undefined,
+      building_type: selBuildingType || undefined,
+      year: selYear === "all" ? undefined : selYear,
+    };
 
     setLoading(true);
     try {
       const result = await fetchComparison({ data: params });
-      setData(result as CompareRow[]);
+      setData(result);
     } catch (err) {
       console.error("Failed to load chart data:", err);
     } finally {
@@ -86,34 +87,15 @@ export default function IndexChart() {
     const label = `${row.region ?? "Unknown"} — ${row.building_type ?? "Unknown"}`;
     if (!groups[key]) groups[key] = { label, data: [] };
 
-    const period = row.quarter ? `${row.quarter} ${row.year}` : `${row.year}`;
+    const period = periodLabel(row);
     const value = row.index_value ?? row.price_per_sqft ?? null;
     if (value !== null) {
       groups[key].data.push({ period, value });
     }
   });
 
-  const uniquePeriods = Array.from(
-    new Set(data.map((d) => (d.quarter ? `${d.quarter} ${d.year}` : `${d.year}`))),
-  ).sort();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-gray-500">Loading chart data…</div>
-      </div>
-    );
-  }
-
-  if (Object.keys(groups).length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <TrendingUp size={48} className="text-gray-300 mb-4" />
-        <p className="text-gray-500">No data matches the current filters.</p>
-        <p className="text-sm text-gray-400 mt-2">Adjust your filters or upload PDF reports.</p>
-      </div>
-    );
-  }
+  // Rows arrive ordered by year then quarter; a string sort would put "Q1 2025" before "Q2 2024".
+  const uniquePeriods = Array.from(new Set(data.map(periodLabel)));
 
   return (
     <div className="space-y-4">
@@ -130,7 +112,7 @@ export default function IndexChart() {
           className="text-sm border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-cpi-blue focus:border-transparent"
         >
           <option value="">All Regions</option>
-          {[...new Set(data.map((d) => d.region).filter((r): r is string => !!r))].map((r) => (
+          {regions.map((r) => (
             <option key={r} value={r}>
               {r}
             </option>
@@ -143,13 +125,11 @@ export default function IndexChart() {
           className="text-sm border border-gray-300 rounded px-3 py-1 focus:ring-2 focus:ring-cpi-blue focus:border-transparent"
         >
           <option value="">All Building Types</option>
-          {[...new Set(data.map((d) => d.building_type).filter((b): b is string => !!b))].map(
-            (bt) => (
-              <option key={bt} value={bt}>
-                {bt}
-              </option>
-            ),
-          )}
+          {buildingTypes.map((bt) => (
+            <option key={bt} value={bt}>
+              {bt}
+            </option>
+          ))}
         </select>
 
         <select
@@ -187,7 +167,17 @@ export default function IndexChart() {
 
       {/* Chart */}
       <div className="h-96 w-full">
-        {chartType === "line" ? (
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-gray-500">
+            Loading chart data…
+          </div>
+        ) : Object.keys(groups).length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <TrendingUp size={48} className="text-gray-300 mb-4" />
+            <p className="text-gray-500">No data matches the current filters.</p>
+            <p className="text-sm text-gray-400 mt-2">Adjust your filters or upload PDF reports.</p>
+          </div>
+        ) : chartType === "line" ? (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={uniquePeriods.map((period) => {
@@ -245,4 +235,8 @@ export default function IndexChart() {
       </div>
     </div>
   );
+}
+
+function periodLabel(row: ComparisonRow): string {
+  return row.quarter ?? (row.year !== null ? String(row.year) : "Unknown");
 }

@@ -14,11 +14,6 @@ export default defineConfig(({ mode }) => {
     // In dev, Vite handles SSR via its native middleware.
     ...(isServing ? [] : [cloudflare({ viteEnvironment: { name: "ssr" } })]),
     ...(tanstackStart({
-      vite: {
-        server: {
-          port: 3000,
-        },
-      },
       server: {
         entry: "server",
       },

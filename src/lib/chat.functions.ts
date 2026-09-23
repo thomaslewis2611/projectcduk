@@ -8,16 +8,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-/** Shape of a price_indices row with minimal joins (for chat context). */
-interface ChatPriceIndexRow {
-  index_value: number | null;
-  price_per_sqft: number | null;
-  reports: { year: number | null; quarter: string | null; report_date: string | null } | null;
-  regions: { name: string } | null;
-  building_types: { name: string } | null;
-  size_bands: { label: string } | null;
-}
-
 const messageSchema = z.object({
   role: z.enum(["user", "assistant"]),
   content: z.string().min(1).max(8000),
@@ -53,7 +43,8 @@ export type ChatMessage = {
 
 type ChatResult = {
   response: string;
-  dataPoints: unknown[] | null;
+  /** Context lines that matched the question's keywords. */
+  dataPoints: string[] | null;
 };
 
 export const chatAboutConstruction = createServerFn({ method: "POST" })
@@ -87,14 +78,14 @@ export const chatAboutConstruction = createServerFn({ method: "POST" })
       process.env.OPENAI_API_KEY ?? (globalThis as { OPENAI_API_KEY?: string }).OPENAI_API_KEY;
 
     if (apiKey) {
-      return await callOpenAI(messages, contextText);
+      return await callOpenAI(apiKey, messages, contextText);
     }
 
     const anthropicKey =
       process.env.ANTHROPIC_API_KEY ??
       (globalThis as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY;
     if (anthropicKey) {
-      return await callAnthropic(messages, contextText);
+      return await callAnthropic(anthropicKey, messages, contextText);
     }
 
     // Fallback: keyword-based response
@@ -108,32 +99,21 @@ export const chatAboutConstruction = createServerFn({ method: "POST" })
 async function buildDbSummary(): Promise<string> {
   try {
     const { data, error } = await supabaseAdmin
-      .from("price_indices")
-      .select(
-        `
-        index_value,
-        price_per_sqft,
-        reports!inner (quarter, year),
-        regions (name),
-        building_types (name),
-        size_bands (label)
-      `,
-      )
-      .order("reports.year")
-      .order("reports.quarter");
+      .from("price_index_rows")
+      .select("year, quarter, region, building_type, size_band, index_value, price_per_sqft")
+      .order("year", { nullsFirst: false })
+      .order("quarter", { nullsFirst: false });
 
     if (error || !data || data.length === 0) {
       return "(no data available — upload PDF reports first)";
     }
 
-    return (data as ChatPriceIndexRow[])
+    return data
       .map((row) => {
-        const period = row.reports?.quarter
-          ? `${row.reports.quarter} ${row.reports.year}`
-          : `${row.reports?.year}`;
-        const region = row.regions?.name ?? "Unknown region";
-        const bt = row.building_types?.name ?? "Unknown type";
-        const sb = row.size_bands?.label ?? "Unknown size";
+        const period = row.quarter ?? `${row.year ?? "Unknown period"}`;
+        const region = row.region ?? "Unknown region";
+        const bt = row.building_type ?? "Unknown type";
+        const sb = row.size_band ?? "Unknown size";
         const idx = row.index_value ?? "N/A";
         const price = row.price_per_sqft ? `£${row.price_per_sqft}/sqft` : "N/A";
         return `${period} | ${region} | ${bt} | ${sb} | Index=${idx} | ${price}`;
@@ -150,12 +130,10 @@ async function buildDbSummary(): Promise<string> {
 // ---------------------------------------------------------------------------
 
 async function callOpenAI(
+  apiKey: string,
   messages: Array<{ role: string; content: string }>,
   contextText: string,
 ): Promise<ChatResult> {
-  const apiKey =
-    process.env.OPENAI_API_KEY ?? (globalThis as { OPENAI_API_KEY?: string }).OPENAI_API_KEY;
-
   try {
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -195,13 +173,10 @@ async function callOpenAI(
 // ---------------------------------------------------------------------------
 
 async function callAnthropic(
+  apiKey: string,
   messages: Array<{ role: string; content: string }>,
   contextText: string,
 ): Promise<ChatResult> {
-  const apiKey =
-    process.env.ANTHROPIC_API_KEY ??
-    (globalThis as { ANTHROPIC_API_KEY?: string }).ANTHROPIC_API_KEY;
-
   // Separate system messages from user/assistant messages
   const system = messages
     .filter((m) => m.role === "system")
@@ -282,10 +257,7 @@ async function keywordFallback(message: string, contextText: string): Promise<Ch
 // Extract data points from context for structured results
 // ---------------------------------------------------------------------------
 
-function extractDataPoints(
-  contextText: string,
-  query: string,
-): Array<Record<string, unknown>> | null {
+function extractDataPoints(contextText: string, query: string): string[] | null {
   if (contextText.includes("no data available")) return null;
 
   const keywords = query
@@ -295,9 +267,5 @@ function extractDataPoints(
 
   return contextText
     .split("\n")
-    .filter((line) => keywords.some((kw) => line.toLowerCase().includes(kw)))
-    .map((line) => {
-      const parts = line.split(" | ");
-      return { line, parts };
-    });
+    .filter((line) => keywords.some((kw) => line.toLowerCase().includes(kw)));
 }

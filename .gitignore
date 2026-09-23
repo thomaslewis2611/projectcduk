@@ -16,6 +16,11 @@ dist-ssr
 .nitro
 *.local
 
+# Environment (never commit secrets — use .env.example)
+.env
+.env.*
+!.env.example
+
 # Supabase
 supabase/.temp/
 

@@ -15,7 +15,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "test:security": "node --test tests/security/*.test.mjs"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.7",
@@ -57,6 +58,7 @@
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.0.2",
+    "vitest": "^3.2.7",
     "wrangler": "^4.136.3"
   },
   "pnpm": {

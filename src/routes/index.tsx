@@ -5,7 +5,7 @@ import {
   fetchRegions,
   fetchBuildingTypes,
   fetchYears,
-  fetchIndices,
+  fetchDataPointCount,
 } from "@/lib/data.functions";
 import type { Report } from "@/lib/data.functions";
 import { FileText, TrendingUp, BarChart3, Upload } from "lucide-react";
@@ -25,21 +25,19 @@ function Dashboard() {
   React.useEffect(() => {
     const load = async () => {
       try {
-        const [reportsData, regionsData, bts, yearsData] = await Promise.all([
+        const [reportsData, regionsData, bts, yearsData, dataPointCount] = await Promise.all([
           fetchReports(),
           fetchRegions(),
           fetchBuildingTypes(),
           fetchYears(),
+          fetchDataPointCount(),
         ]);
 
         setReports(reportsData);
         setRegions(regionsData);
         setBuildingTypes(bts);
         setYears(yearsData);
-
-        // Count total data points
-        const indices = await fetchIndices({ data: { limit: 10000 } });
-        setTotalDataPoints(indices.length);
+        setTotalDataPoints(dataPointCount);
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
