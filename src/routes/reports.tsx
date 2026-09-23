@@ -2,9 +2,9 @@ import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchReports, deleteReport } from "@/lib/data.functions";
 import type { Report } from "@/lib/data.functions";
-import { FileText, RefreshCw, Trash2, Upload } from "lucide-react";
+import { FileText, RefreshCw, Trash2 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
-import ReportUploader from "@/components/ReportUploader";
+import { useAdmin } from "@/lib/use-admin";
 
 export const Route = createFileRoute("/reports")({
   component: ReportsPage,
@@ -13,6 +13,8 @@ export const Route = createFileRoute("/reports")({
 function ReportsPage() {
   const [reports, setReports] = React.useState<Report[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const { session, isAdmin } = useAdmin();
 
   const loadReports = async () => {
     try {
@@ -30,12 +32,14 @@ function ReportsPage() {
   }, []);
 
   const handleDelete = async (id: number, filename: string) => {
-    if (!confirm("Delete this report and all its data?")) return;
+    if (!session || !confirm("Delete this report and all its data?")) return;
+    setError(null);
     try {
-      await deleteReport({ data: { id, filename } });
+      await deleteReport({ data: { accessToken: session.access_token, id, filename } });
       setReports((prev) => prev.filter((r) => r.id !== id));
     } catch (err) {
       console.error("Failed to delete report:", err);
+      setError(err instanceof Error ? err.message : "Failed to delete report.");
     }
   };
 
@@ -44,9 +48,7 @@ function ReportsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage your uploaded price index report PDFs.
-          </p>
+          <p className="text-sm text-gray-500 mt-1">The reports the forecasts come from.</p>
         </div>
         <button onClick={loadReports} className="btn btn-outline">
           <RefreshCw size={16} />
@@ -54,8 +56,18 @@ function ReportsPage() {
         </button>
       </div>
 
-      {/* Upload section */}
-      <ReportUploader onUploadSuccess={loadReports} />
+      {isAdmin && (
+        <p className="text-sm text-gray-500">
+          To add reports, run <code>npm run import-reports</code> on your computer (see the README).
+          You can delete reports here.
+        </p>
+      )}
+
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
+          {error}
+        </div>
+      )}
 
       {/* Reports list */}
       {loading ? (
@@ -63,7 +75,7 @@ function ReportsPage() {
       ) : reports.length === 0 ? (
         <div className="card text-center py-12">
           <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">No reports uploaded yet.</p>
+          <p className="text-gray-500">No reports imported yet.</p>
         </div>
       ) : (
         <div className="overflow-x-auto border border-gray-200 rounded-lg">
@@ -96,20 +108,25 @@ function ReportsPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={report.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{report.filename}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">
+                    {report.title ?? report.filename}
+                    {report.title && <div className="text-xs text-gray-500">{report.filename}</div>}
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-700">{report.quarter ?? "—"}</td>
                   <td className="px-4 py-3 text-sm text-gray-700">{report.year ?? "—"}</td>
                   <td className="px-4 py-3 text-sm text-gray-500">
                     {report.extracted_at ? new Date(report.extracted_at).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-4 py-3 text-right space-x-2">
-                    <button
-                      onClick={() => handleDelete(report.id, report.filename)}
-                      className="text-red-600 hover:text-red-800"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleDelete(report.id, report.filename)}
+                        className="text-red-600 hover:text-red-800"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -1,16 +1,17 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Home, Upload, BarChart3, MessageCircle, GitCompare } from "lucide-react";
+import { Calculator, Home, Upload, LogIn, LogOut, TrendingUp } from "lucide-react";
+import { signOut, useAdmin } from "@/lib/use-admin";
 
 export default function Header() {
   const router = useRouter();
   const currentPath = router.state.location.pathname;
+  const { session } = useAdmin();
 
   const navItems = [
     { to: "/", label: "Dashboard", icon: Home },
+    { to: "/forecasts", label: "Forecasts", icon: TrendingUp },
+    { to: "/calculator", label: "Calculator", icon: Calculator },
     { to: "/reports", label: "Reports", icon: Upload },
-    { to: "/compare", label: "Compare", icon: GitCompare },
-    { to: "/charts", label: "Charts", icon: BarChart3 },
-    { to: "/chat", label: "AI Chat", icon: MessageCircle },
   ];
 
   return (
@@ -37,6 +38,24 @@ export default function Header() {
                 </Link>
               );
             })}
+            {session ? (
+              <button
+                onClick={() => signOut()}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-100"
+                title={session.user.email ?? undefined}
+              >
+                <LogOut size={18} />
+                Sign out
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-100"
+              >
+                <LogIn size={18} />
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
       </div>

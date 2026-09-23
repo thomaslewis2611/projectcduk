@@ -1,5 +1,5 @@
 // Server entry point for Cloudflare Workers
-import type { ServerEntry } from "@tanstack/react-start/server";
+import type { ServerEntry } from "@tanstack/react-start/server-entry";
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
@@ -23,10 +23,11 @@ function brandedErrorResponse(): Response {
 }
 
 export default {
-  async fetch(request: Request, env: unknown, ctx: unknown) {
+  // Worker bindings (vars/secrets) reach app code via process.env under nodejs_compat.
+  async fetch(request: Request) {
     try {
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
+      const response = await handler.fetch(request);
       return response;
     } catch (error) {
       console.error(error);

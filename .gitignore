@@ -16,6 +16,11 @@ dist-ssr
 .nitro
 *.local
 
+# Environment (never commit secrets — use .env.example)
+.env
+.env.*
+!.env.example
+
 # Supabase
 supabase/.temp/
 
@@ -40,6 +45,9 @@ supabase/.temp/
 
 # Reports (managed via Supabase Storage)
 reports/*.pdf
+
+# Local import debugging output (extracted report text)
+import-debug/
 
 # Generated files
 routeTree.gen.ts

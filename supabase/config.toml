@@ -1,22 +1,19 @@
-[supabase]
-project_ref = "projectcduk"
+# Supabase CLI config.
+# - `supabase link` + `supabase db push` apply supabase/migrations/ to the hosted project.
+# - `supabase start` runs a local stack (needs Docker) — not required for this project.
+project_id = "projectcduk"
 
 [api]
 enabled = true
 port = 54321
-schemas = ["public", "storage"]
-db_name = "postgres"
-port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
 
 [db]
 port = 54322
+major_version = 17
 
-[realtime]
-enabled = true
-ip_version = "ipv6"
-
-[anon]
-key = "your-anon-key"
-
-[service_role]
-key = "your-service-role-key"
+[auth]
+# Single admin: no public sign-ups (set the same in the hosted project's Auth settings).
+enable_signup = false
