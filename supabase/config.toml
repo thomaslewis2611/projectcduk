@@ -1,0 +1,22 @@
+[supabase]
+project_ref = "projectcduk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+db_name = "postgres"
+port = 54321
+
+[db]
+port = 54322
+
+[realtime]
+enabled = true
+ip_version = "ipv6"
+
+[anon]
+key = "your-anon-key"
+
+[service_role]
+key = "your-service-role-key"
