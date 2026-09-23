@@ -23,45 +23,29 @@ interface RootContext {
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-cpi-blue">404</h1>
-        <p className="mt-2 text-gray-600">Page not found</p>
-        <Link
-          to="/"
-          className="mt-4 inline-block rounded-lg bg-cpi-blue px-6 py-3 text-sm font-medium text-white hover:bg-cpi-blue/90"
-        >
-          Go home
-        </Link>
-      </div>
+    <div className="page text-center py-24">
+      <p className="eyebrow mb-3">404</p>
+      <h1 className="display text-4xl">Page not found</h1>
+      <Link to="/" className="btn btn-primary mt-6">
+        Go home
+      </Link>
     </div>
   );
 }
 
 function ErrorComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-cpi-blue">Something went wrong</h1>
-        <p className="mt-2 text-gray-600">
-          An unexpected error occurred. Try refreshing or go home.
-        </p>
-        <div className="mt-4 flex gap-2 justify-center">
-          <button
-            onClick={() => {
-              window.location.reload();
-            }}
-            className="rounded-lg bg-cpi-blue px-6 py-3 text-sm font-medium text-white hover:bg-cpi-blue/90"
-          >
-            Refresh
-          </button>
-          <Link
-            to="/"
-            className="rounded-lg border border-gray-300 px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Go home
-          </Link>
-        </div>
+    <div className="page text-center py-24">
+      <p className="eyebrow mb-3">Error</p>
+      <h1 className="display text-4xl">Something went wrong</h1>
+      <p className="mt-3 text-muted">An unexpected error occurred. Try refreshing, or go home.</p>
+      <div className="mt-6 flex gap-3 justify-center">
+        <button onClick={() => window.location.reload()} className="btn btn-primary">
+          Refresh
+        </button>
+        <Link to="/" className="btn btn-outline">
+          Go home
+        </Link>
       </div>
     </div>
   );
@@ -75,16 +59,21 @@ export const Route = createRootRouteWithContext<RootContext>()({
         name: "viewport",
         content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
       },
-      {
-        title: "Project CPD UK — UK Construction Price Index",
-      },
+      { title: "Pricemark — UK tender price inflation forecasts" },
       {
         name: "description",
         content:
-          "Explore UK construction price data, compare build costs across regions and building types, and ask AI-powered questions.",
+          "Regional UK construction tender price inflation forecasts from leading cost consultants, tracked report by report, with an escalation calculator.",
       },
+      { name: "theme-color", content: "#005a37" },
     ],
     links: [
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
     ],
@@ -114,9 +103,9 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <main className="flex-1">
           <Outlet />
         </main>
         <Footer />

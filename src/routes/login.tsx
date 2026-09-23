@@ -1,6 +1,5 @@
 import * as React from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
@@ -28,36 +27,38 @@ function LoginPage() {
   };
 
   return (
-    <div className="max-w-sm mx-auto card">
-      <h1 className="text-xl font-semibold text-gray-800 mb-1 flex items-center gap-2">
-        <LogIn size={20} />
-        Admin sign in
-      </h1>
-      <p className="text-sm text-gray-500 mb-4">Only the site admin can manage reports.</p>
-      <form onSubmit={onSubmit} className="space-y-3">
-        <input
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-        />
-        <input
-          type="password"
-          required
-          autoComplete="current-password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-        />
-        {error && <p className="text-sm text-red-700">{error}</p>}
-        <button type="submit" disabled={submitting} className="btn btn-primary w-full">
-          {submitting ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+    <div className="page py-20">
+      <div className="max-w-sm mx-auto card p-8">
+        <p className="eyebrow">Admin</p>
+        <h1 className="display text-3xl mt-1 mb-2">Sign in</h1>
+        <p className="text-sm text-muted mb-6">Only the site admin can manage reports.</p>
+        <form onSubmit={onSubmit} className="space-y-3">
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="Email"
+            aria-label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input"
+          />
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            placeholder="Password"
+            aria-label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="input"
+          />
+          {error && <p className="text-sm text-red-700">{error}</p>}
+          <button type="submit" disabled={submitting} className="btn btn-primary w-full">
+            {submitting ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

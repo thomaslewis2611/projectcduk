@@ -1,5 +1,6 @@
 // Server entry point for Cloudflare Workers
 import type { ServerEntry } from "@tanstack/react-start/server-entry";
+import { renderErrorPage } from "./lib/error-page";
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
@@ -13,13 +14,10 @@ async function getServerEntry() {
 }
 
 function brandedErrorResponse(): Response {
-  return new Response(
-    '<!doctype html><html><body style="font-family: system-ui; padding: 4rem; text-align: center;"><h1>Something went wrong</h1><p>We hit an unexpected error. Please try again or go <a href="/">home</a>.</p></body></html>',
-    {
-      status: 500,
-      headers: { "content-type": "text/html; charset=utf-8" },
-    },
-  );
+  return new Response(renderErrorPage(), {
+    status: 500,
+    headers: { "content-type": "text/html; charset=utf-8" },
+  });
 }
 
 export default {

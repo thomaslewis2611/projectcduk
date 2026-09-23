@@ -4,6 +4,7 @@ import { fetchReports, deleteReport } from "@/lib/data.functions";
 import type { Report } from "@/lib/data.functions";
 import { FileText, RefreshCw, Trash2 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
+import PageHeader from "@/components/PageHeader";
 import { useAdmin } from "@/lib/use-admin";
 
 export const Route = createFileRoute("/reports")({
@@ -44,96 +45,95 @@ function ReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">The reports the forecasts come from.</p>
-        </div>
-        <button onClick={loadReports} className="btn btn-outline">
-          <RefreshCw size={16} />
-          Refresh
-        </button>
-      </div>
+    <>
+      <PageHeader eyebrow="Sources" title="Source reports">
+        The consultants' reports the forecasts come from, newest first.
+      </PageHeader>
 
-      {isAdmin && (
-        <p className="text-sm text-gray-500">
-          To add reports, run <code>npm run import-reports</code> on your computer (see the README).
-          You can delete reports here.
-        </p>
-      )}
-
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800">
-          {error}
+      <div className="page space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted">
+            {isAdmin ? (
+              <>
+                To add reports, run <code className="mono text-ink">npm run import-reports</code> on
+                your computer (see the README). You can delete reports here.
+              </>
+            ) : (
+              <>
+                <span className="num text-ink">{reports.length}</span> reports
+              </>
+            )}
+          </p>
+          <button onClick={loadReports} className="btn btn-outline">
+            <RefreshCw size={15} />
+            Refresh
+          </button>
         </div>
-      )}
 
-      {/* Reports list */}
-      {loading ? (
-        <div className="py-8 text-center text-gray-500">Loading…</div>
-      ) : reports.length === 0 ? (
-        <div className="card text-center py-12">
-          <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">No reports imported yet.</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto border border-gray-200 rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Filename
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Quarter
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Year
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Extracted
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {reports.map((report) => (
-                <tr key={report.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <StatusBadge status={report.status} />
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-900">
-                    {report.title ?? report.filename}
-                    {report.title && <div className="text-xs text-gray-500">{report.filename}</div>}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{report.quarter ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{report.year ?? "—"}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">
-                    {report.extracted_at ? new Date(report.extracted_at).toLocaleDateString() : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right space-x-2">
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleDelete(report.id, report.filename)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </td>
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-800">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="card text-center py-12 text-muted">Loading…</div>
+        ) : reports.length === 0 ? (
+          <div className="card text-center py-12">
+            <FileText size={40} className="mx-auto text-line mb-4" />
+            <p className="text-muted">No reports imported yet.</p>
+          </div>
+        ) : (
+          <div className="card p-0 overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-[0.12em] text-muted border-b border-line">
+                  <th className="px-6 py-3">Report</th>
+                  <th className="px-4 py-3">Period</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Imported</th>
+                  <th className="px-6 py-3 text-right">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {reports.map((report) => (
+                  <tr key={report.id} className="hover:bg-paper">
+                    <td className="px-6 py-4">
+                      {report.title ?? report.filename}
+                      {report.title && (
+                        <div className="text-xs text-muted mono mt-0.5">{report.filename}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 num">{report.quarter ?? "—"}</td>
+                    <td className="px-4 py-4">
+                      <StatusBadge status={report.status} />
+                    </td>
+                    <td className="px-4 py-4 text-muted num">
+                      {report.extracted_at
+                        ? new Date(report.extracted_at).toLocaleDateString("en-GB")
+                        : "—"}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(report.id, report.filename)}
+                          className="text-muted hover:text-red-700"
+                          title="Delete"
+                          aria-label={`Delete ${report.title ?? report.filename}`}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

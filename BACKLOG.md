@@ -1,4 +1,4 @@
-# Backlog — Project CD UK
+# Backlog — Pricemark
 
 _Last reviewed: 2026-09-23 (review of `bc138fd`, initial Warp/poolside build)_
 
@@ -153,6 +153,9 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 - **2026-09-23 (live)**: Site live on Cloudflare Workers with all 19 G&T reports. First deploy went out
   without config (git deleted `.env` on `checkout main`); deploy scripts now refuse missing values.
+
+- **2026-09-23 (rebrand)**: Renamed to **Pricemark**; new look inspired by Freda's palette and type
+  (forest green / pale lime / off-white, Hanken Grotesk, hairline drawing-style frames). New landing page.
 
 ## Open questions (owner: Thomas)
 

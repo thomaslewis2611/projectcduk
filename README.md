@@ -1,4 +1,4 @@
-# Project CPD UK
+# Pricemark
 
 UK construction **tender price inflation (TPI) forecasts**, imported from consultants'
 quarterly reports, starting with Gardiner & Theobald's Tender Price Indicator.
