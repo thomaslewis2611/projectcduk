@@ -27,7 +27,16 @@ if (!folder) {
   process.exit(1);
 }
 
-const files = (await readdir(folder)).filter((f) => f.toLowerCase().endsWith(".pdf")).sort();
+let entries: string[];
+try {
+  entries = await readdir(folder);
+} catch {
+  console.error(
+    `Folder not found: ${folder}\nCheck the path — wrap it in quotes if it contains spaces.`,
+  );
+  process.exit(1);
+}
+const files = entries.filter((f) => f.toLowerCase().endsWith(".pdf")).sort();
 if (files.length === 0) {
   console.error(`No PDFs found in ${folder}`);
   process.exit(1);
