@@ -17,6 +17,8 @@ export type Database = {
           status: string;
           extracted_at: string | null;
           created_at: string;
+          publisher: string | null;
+          period_quarter: number | null;
         };
         Insert: {
           id?: number;
@@ -28,6 +30,8 @@ export type Database = {
           status?: string;
           extracted_at?: string | null;
           created_at?: string;
+          publisher?: string | null;
+          period_quarter?: number | null;
         };
         Update: {
           id?: number;
@@ -39,6 +43,8 @@ export type Database = {
           status?: string;
           extracted_at?: string | null;
           created_at?: string;
+          publisher?: string | null;
+          period_quarter?: number | null;
         };
         Relationships: [];
       };
@@ -164,8 +170,58 @@ export type Database = {
           },
         ];
       };
+      tpi_forecasts: {
+        Row: {
+          id: number;
+          report_id: number;
+          region: string;
+          forecast_year: number;
+          change_pct: number | null;
+          previous_change_pct: number | null;
+        };
+        Insert: {
+          id?: number;
+          report_id: number;
+          region: string;
+          forecast_year: number;
+          change_pct?: number | null;
+          previous_change_pct?: number | null;
+        };
+        Update: {
+          id?: number;
+          report_id?: number;
+          region?: string;
+          forecast_year?: number;
+          change_pct?: number | null;
+          previous_change_pct?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tpi_forecasts_report_id_fkey";
+            columns: ["report_id"];
+            isOneToOne: false;
+            referencedRelation: "reports";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
+      tpi_forecast_rows: {
+        Row: {
+          id: number;
+          report_id: number;
+          publisher: string | null;
+          period_label: string | null;
+          period_year: number | null;
+          period_quarter: number | null;
+          region: string;
+          forecast_year: number;
+          change_pct: number | null;
+          previous_change_pct: number | null;
+        };
+        Relationships: [];
+      };
       price_index_rows: {
         Row: {
           id: number;

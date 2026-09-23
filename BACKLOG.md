@@ -88,42 +88,48 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | 0.4 | Migration 002: enable RLS (public read-only on reference/price data; no anon writes), private storage bucket, `ON DELETE CASCADE`, `NULLS NOT DISTINCT` unique key, flat `price_index_rows` view     | P0  | ☑ tested on Postgres 16; **not yet applied to your Supabase project** |
 | 0.5 | Fix ingestion bugs: pass `report_id`, check every Supabase error, honest status (`completed` / `no_data` / `failed`), duplicate-filename handling, sanitise storage key, `numpages`, batched inserts | P0  | ☑                                                                     |
 | 0.6 | Fix query bugs in `data.functions.ts` (ordering, filters, `report_id`, count query) and chart filters                                                                                                | P0  | ☑                                                                     |
-| 0.7 | Admin auth: gate upload/delete behind Supabase Auth (admin role)                                                                                                                                     | P0  | ☐ _needs decision_                                                    |
+| 0.7 | Admin auth: gate upload/delete behind Supabase Auth (single admin via `ADMIN_EMAIL`, verified server-side)                                                                                           | P0  | ☑                                                                     |
 | 0.8 | GitHub Actions CI: install, lint, format, build, typecheck, test                                                                                                                                     | P0  | ☑                                                                     |
 | 0.9 | Unit tests for PDF text extraction (fixed 3 parser bugs they exposed)                                                                                                                                | P0  | ☑                                                                     |
 
 ### Phase 1 — Real data in
 
-| #   | Item                                                                                                                       | P   | Status             |
-| --- | -------------------------------------------------------------------------------------------------------------------------- | --- | ------------------ |
-| 1.1 | Confirm source report(s) and licensing (see Open questions)                                                                | P0  | ☐ _needs decision_ |
-| 1.2 | Get 2–3 real sample PDFs; write a parser **per report format** with fixture tests                                          | P0  | ☐                  |
-| 1.3 | Swap `pdf-parse` for a Workers-compatible extractor (`unpdf`/pdfjs), or move ingestion to a Supabase Edge Function / queue | P1  | ☐                  |
-| 1.4 | Ingestion preview: show extracted rows for review before committing                                                        | P1  | ☐                  |
-| 1.5 | Seed lookup tables in a migration instead of per-upload (now 3 bulk upserts, was ~35 calls)                                | P2  | ☐                  |
-| 1.6 | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                 | P1  | ☐                  |
-| 1.7 | Store quarter as `year` + `quarter smallint`; proper `report_date date`                                                    | P1  | ☐                  |
+| #    | Item                                                                                                                                                | P   | Status                                                              |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------- |
+| 1.1  | Confirm source report(s) and licensing                                                                                                              | P0  | ☑ free consultant reports; G&T TPI first; credit the source on-page |
+| 1.2  | G&T TPI parser (regional forecast table) with fixture tests for every layout seen 2021–2026                                                         | P0  | ☑                                                                   |
+| 1.2a | Schema for TPI forecasts (`tpi_forecasts`, `tpi_forecast_rows` view, one report per publisher+period)                                               | P0  | ☑ migration 003, tested on Postgres 16                              |
+| 1.2b | Fix PDF text extraction running table cells together (custom pdf-parse page renderer)                                                               | P0  | ☑                                                                   |
+| 1.2c | Local import script with `--dry-run` / `--dump-text`                                                                                                | P0  | ☑ **run it on the 19 PDFs** (see README below)                      |
+| 1.3  | Swap `pdf-parse` for a Workers-compatible extractor (`unpdf`), or move ingestion elsewhere — the admin upload page won't work on Workers until then | P1  | ☐                                                                   |
+| 1.4  | Ingestion preview: show extracted rows for review before committing                                                                                 | P1  | ☐                                                                   |
+| 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                                                | P2  | ☐                                                                   |
+| 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                                          | P1  | ☐                                                                   |
+| 1.7  | Parsers for other consultants' reports (as they're added)                                                                                           | P1  | ☐ _needs sample PDFs_                                               |
+| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☐ _needs decision_                                                  |
 
 ### Phase 2 — Useful product
 
-| #   | Item                                                                                                                                         | P   | Status |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------ |
-| 2.1 | Chat: replace "dump whole DB" with tool calls (`query_indices(region, type, size, period)`); one provider via AI SDK; current model ids      | P1  | ☐      |
-| 2.2 | Chat rate limiting (real KV namespace) + request size limits                                                                                 | P1  | ☐      |
-| 2.3 | Charts/compare: move to TanStack Query loaders, URL-driven filters (shareable links); stop plotting index values and £/sqft on the same axis | P1  | ☐      |
-| 2.4 | Cost calculator: "X sqft of type Y in region Z, then vs now" with index-adjusted £                                                           | P1  | ☐      |
-| 2.5 | CSV export of any filtered view                                                                                                              | P2  | ☐      |
-| 2.6 | Supplement with open data (ONS construction output & price indices)                                                                          | P2  | ☐      |
+| #   | Item                                                                                                           | P   | Status                           |
+| --- | -------------------------------------------------------------------------------------------------------------- | --- | -------------------------------- |
+| 2.0 | Forecasts page: latest regional table with revisions + "how the forecasts moved" chart                         | P0  | ☑                                |
+| 2.1 | Chat: OpenAI only, answers from TPI forecasts; later move from "send all data" to tool calls                   | P1  | ◐ OpenAI-only + TPI context done |
+| 2.2 | Chat rate limiting (real KV namespace) + request size limits                                                   | P1  | ☐                                |
+| 2.3 | Dashboard/charts/compare rework around TPI data; URL-driven filters (shareable links)                          | P1  | ☐ depends on 1.8                 |
+| 2.4 | Escalation calculator: "£X budget priced in Q1 2024 — what is it in Q4 2027?" by region, compounding forecasts | P1  | ☐                                |
+| 2.5 | CSV export of any filtered view                                                                                | P2  | ☐                                |
+| 2.6 | Supplement with open data (ONS construction output & price indices)                                            | P2  | ☐                                |
 
 ### Phase 3 — Ship it
 
-| #   | Item                                                                                              | P   | Status |
-| --- | ------------------------------------------------------------------------------------------------- | --- | ------ |
-| 3.1 | Cloudflare deploy: real KV id, secrets via `wrangler secret`, env via Workers bindings            | P1  | ☐      |
-| 3.2 | Preview deploys per PR                                                                            | P2  | ☐      |
-| 3.3 | Error monitoring + structured logs                                                                | P2  | ☐      |
-| 3.4 | README rewrite to match reality                                                                   | P1  | ☐      |
-| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai` (after 2.1 decides provider) | P2  | ☐      |
+| #   | Item                                                                                      | P   | Status |
+| --- | ----------------------------------------------------------------------------------------- | --- | ------ |
+| 3.1 | Cloudflare deploy: real KV id, secrets via `wrangler secret`, env via Workers bindings    | P1  | ☐      |
+| 3.2 | Preview deploys per PR                                                                    | P2  | ☐      |
+| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐      |
+| 3.4 | README rewrite to match reality                                                           | P1  | ☐      |
+| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☐      |
+| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑      |
 
 ---
 
@@ -131,13 +137,24 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 - **2026-09-23**: Phase 0 items 0.1–0.6, 0.8 and 0.9 done. Typecheck 27 → 0 errors; 16 unit tests; CI added.
   Blocked on decisions: 0.7 (auth), 1.1/1.2 (data source + sample PDFs), 2.1 (AI provider).
+- **2026-09-23 (pm)**: Source = Gardiner & Theobald TPI reports (19, Q4 2021 → Autumn 2026). Parser,
+  schema, import script, Forecasts page, admin auth, OpenAI-only chat. 45 tests. First real run of the
+  app found and fixed the missing styling.
 
 ## Open questions (owner: Thomas)
 
-1. **Data source & licensing.** Which report(s) are the PDFs from (BCIS, RICS, a
-   QS firm's quarterly report, your own)? If it's paid data, republishing figures
-   publicly may breach its licence. This decides whether the site is public or private.
-2. **Who uploads?** Just you (single admin), or several users with their own data?
-3. **Who is it for, and is it paid?** It affects auth, rate limits and chat cost.
-4. **AI provider.** OpenAI or Anthropic? The code tries both; picking one simplifies things.
-5. **Sample PDFs.** Can you add 2–3 real reports (privately, not in this public repo)?
+1. ~~Data source & licensing~~ — free consultant reports (G&T first). Pages credit the source.
+2. ~~Who uploads?~~ — single admin for now.
+3. **Who is it for, and is it paid?** Affects rate limits and chat cost.
+4. ~~AI provider~~ — OpenAI for now.
+5. **Building types / £ per sqft** (1.8): keep those pages for a future source, or remove them?
+6. **Which other consultants' reports** should be added next?
+
+## Running the import (locally)
+
+```bash
+cp .env.example .env               # fill in SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
+npx supabase db push               # applies migrations 002 and 003
+npm run import-reports -- ~/path/to/projectcduk-reports --dry-run
+npm run import-reports -- ~/path/to/projectcduk-reports
+```

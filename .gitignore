@@ -46,5 +46,8 @@ supabase/.temp/
 # Reports (managed via Supabase Storage)
 reports/*.pdf
 
+# Local import debugging output (extracted report text)
+import-debug/
+
 # Generated files
 routeTree.gen.ts

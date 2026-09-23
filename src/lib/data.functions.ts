@@ -5,6 +5,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireAdmin } from "@/lib/admin.server";
 import type { Database } from "@/integrations/supabase/types";
 
 // ---------------------------------------------------------------------------
@@ -28,6 +29,8 @@ export const ReportSchema = z.object({
   status: z.string(),
   extracted_at: z.string().nullable(),
   created_at: z.string(),
+  publisher: z.string().nullable(),
+  period_quarter: z.number().nullable(),
 });
 
 export const PriceIndexSchema = z.object({
@@ -70,8 +73,9 @@ export const fetchReports = createServerFn({ method: "GET" }).handler(
     const { data, error } = await supabaseAdmin
       .from("reports")
       .select("*")
-      .order("year", { ascending: false })
-      .order("quarter", { ascending: false });
+      .order("year", { ascending: false, nullsFirst: false })
+      .order("period_quarter", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("[fetchReports] Supabase error:", error);
@@ -82,8 +86,10 @@ export const fetchReports = createServerFn({ method: "GET" }).handler(
 );
 
 export const deleteReport = createServerFn({ method: "POST" })
-  .validator(z.object({ id: z.number(), filename: z.string() }))
+  .validator(z.object({ accessToken: z.string().min(1), id: z.number(), filename: z.string() }))
   .handler(async ({ data }): Promise<{ success: boolean }> => {
+    await requireAdmin(data.accessToken);
+
     // Delete from storage bucket
     const { error: storageError } = await supabaseAdmin.storage
       .from("reports")

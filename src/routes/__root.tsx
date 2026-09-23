@@ -15,8 +15,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-const appCss = new URL("../styles.css", import.meta.url).href;
+import appCss from "../styles.css?url";
 
 interface RootContext {
   queryClient: QueryClient;

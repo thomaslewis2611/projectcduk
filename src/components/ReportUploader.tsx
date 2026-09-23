@@ -3,10 +3,11 @@ import { uploadAndParseReport } from "@/lib/pdf-parser";
 import { Upload, FileText, AlertCircle, CheckCircle } from "lucide-react";
 
 type ReportUploaderProps = {
+  accessToken: string;
   onUploadSuccess?: () => void;
 };
 
-export default function ReportUploader({ onUploadSuccess }: ReportUploaderProps) {
+export default function ReportUploader({ accessToken, onUploadSuccess }: ReportUploaderProps) {
   const [file, setFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -35,7 +36,7 @@ export default function ReportUploader({ onUploadSuccess }: ReportUploaderProps)
       // Read file as base64 for server function
       const base64 = await readFileAsBase64(file);
       const result = await uploadAndParseReport({
-        data: { filename: file.name, base64 },
+        data: { accessToken, filename: file.name, base64 },
       });
 
       if (result.status === "no_data") {
@@ -43,7 +44,11 @@ export default function ReportUploader({ onUploadSuccess }: ReportUploaderProps)
           `"${file.name}" was uploaded, but no data rows were recognised. The report layout may not be supported yet.`,
         );
       } else {
-        setSuccess(`"${file.name}" imported: ${result.dataPoints} data points.`);
+        const what = result.label ? `${result.label}: ` : "";
+        const missing = result.missingRegions.length
+          ? ` Missing regions: ${result.missingRegions.join(", ")}.`
+          : "";
+        setSuccess(`"${file.name}" imported. ${what}${result.dataPoints} data points.${missing}`);
       }
       setFile(null);
       const input = document.getElementById("file-input") as HTMLInputElement;

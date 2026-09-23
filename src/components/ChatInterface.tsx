@@ -8,11 +8,11 @@ export default function ChatInterface() {
     {
       role: "assistant",
       content:
-        "Hello! I'm your AI assistant for the UK Construction Price Index. " +
-        "You can ask me questions like:\n" +
-        '• "Compare the build cost of a 150,000 sqft industrial shed from 2022 to 2026 in South West England"\n' +
-        '• "What was the price per sqft for offices in London in Q2 2024?"\n' +
-        '• "Show me the trend for industrial logistics sheds in the North West"\n\n' +
+        "Hello! I can answer questions about UK tender price inflation forecasts. " +
+        "You can ask me things like:\n" +
+        '• "What is the latest tender price forecast for London in 2027?"\n' +
+        '• "How has the UK forecast for 2026 changed over the last year?"\n' +
+        '• "Roughly how much will tender prices rise in the North West from 2026 to 2029?"\n\n' +
         "What would you like to know?",
     },
   ]);
