@@ -3,48 +3,104 @@
 
 @custom-variant dark (&:is(.dark) *);
 
+/* Pricemark design tokens */
 @theme inline {
-  --color-cpi-blue: #1e3a8a;
-  --color-cpi-green: #059669;
-  --color-cpi-orange: #ea580c;
-  --color-cpi-gray: #4b5563;
-  --color-cpi-light: #f9fafb;
+  --color-forest: #005a37; /* brand ground: header, hero, footer */
+  --color-forest-deep: #00452a;
+  --color-lime: #e2ffc6; /* text and accents on forest */
+  --color-lime-strong: #cff5a8;
+  --color-leaf: #00814e; /* accent on light surfaces */
+  --color-paper: #f4f7f4; /* page background */
+  --color-ink: #0b0d0b;
+  --color-muted: #535d53;
+  --color-line: #dde5dd; /* hairlines on light surfaces */
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 12px;
-
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Inter", system-ui, sans-serif;
-
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 
 @layer base {
   * {
-    @apply border-gray-200;
+    @apply border-line;
   }
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-paper text-ink antialiased;
     font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
   }
 }
 
 @layer components {
-  .btn {
-    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
-  }
-  .btn-primary {
-    @apply bg-cpi-blue text-white hover:bg-cpi-blue/90 focus:ring-cpi-blue;
-  }
-  .btn-outline {
-    @apply border border-gray-300 text-gray-700 hover:bg-gray-100 focus:ring-gray-400;
+  /* Layout */
+  .page {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10;
   }
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6;
+    @apply relative bg-white rounded-2xl border border-line p-6;
   }
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-cpi-blue to-cpi-green;
+
+  /* Type */
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-leaf;
+  }
+  .display {
+    @apply font-light tracking-tight;
+  }
+  /* Figures: tabular digits so columns line up */
+  .num {
+    @apply tabular-nums;
+  }
+  .mono {
+    @apply font-mono;
+  }
+
+  /* Buttons: pills */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-lime {
+    @apply bg-lime text-forest hover:bg-lime-strong focus-visible:ring-lime focus-visible:ring-offset-forest;
+  }
+  .btn-primary {
+    @apply bg-ink text-white hover:bg-forest focus-visible:ring-forest;
+  }
+  .btn-outline {
+    @apply border border-ink/25 text-ink hover:bg-white focus-visible:ring-forest;
+  }
+  .btn-outline-light {
+    @apply border border-lime/40 text-lime hover:bg-lime/10 focus-visible:ring-lime focus-visible:ring-offset-forest;
+  }
+
+  /* Form fields */
+  .input {
+    @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-leaf/40 focus:border-leaf;
+  }
+
+  /* Forest band with a faint drafting grid, e.g. the hero and page headers */
+  .band {
+    @apply bg-forest text-lime;
+    background-image:
+      linear-gradient(rgb(226 255 198 / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(226 255 198 / 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  /* Hairline frame with corner ticks, like a technical drawing */
+  .frame {
+    @apply relative border-x border-lime/20;
+  }
+  .frame::before,
+  .frame::after {
+    content: "";
+    @apply absolute top-6 h-4 w-1.5 bg-lime;
+  }
+  .frame::before {
+    @apply -left-[3.5px];
+  }
+  .frame::after {
+    @apply -right-[3.5px];
   }
 }

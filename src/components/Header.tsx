@@ -1,63 +1,74 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Calculator, Home, Upload, LogIn, LogOut, TrendingUp } from "lucide-react";
+import { PricemarkWordmark } from "@/components/Brand";
 import { signOut, useAdmin } from "@/lib/use-admin";
+
+const NAV = [
+  { to: "/forecasts", label: "Forecasts" },
+  { to: "/reports", label: "Reports" },
+] as const;
 
 export default function Header() {
   const router = useRouter();
   const currentPath = router.state.location.pathname;
   const { session } = useAdmin();
 
-  const navItems = [
-    { to: "/", label: "Dashboard", icon: Home },
-    { to: "/forecasts", label: "Forecasts", icon: TrendingUp },
-    { to: "/calculator", label: "Calculator", icon: Calculator },
-    { to: "/reports", label: "Reports", icon: Upload },
-  ];
+  const navLink = (to: string, label: string) => (
+    <Link
+      key={to}
+      to={to}
+      className={`text-sm font-medium transition-colors ${
+        currentPath === to ? "text-lime" : "text-lime/70 hover:text-lime"
+      }`}
+    >
+      {label}
+    </Link>
+  );
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <header className="bg-forest border-b border-lime/20 sticky top-0 z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <Link to="/" className="text-2xl font-bold text-gradient">
-            Project CPD UK
+        <div className="flex h-16 items-center justify-between gap-4">
+          <Link to="/" className="text-lime" aria-label="Pricemark home">
+            <PricemarkWordmark />
           </Link>
 
-          <nav className="flex items-center space-x-1">
-            {navItems.map(({ to, label, icon: Icon }) => {
-              const isActive = currentPath === to;
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    isActive ? "bg-cpi-blue/10 text-cpi-blue" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  <Icon size={18} />
-                  {label}
-                </Link>
-              );
-            })}
+          <nav className="hidden md:flex items-center gap-8">
+            {NAV.map(({ to, label }) => navLink(to, label))}
+          </nav>
+
+          <div className="flex items-center gap-4">
             {session ? (
               <button
                 onClick={() => signOut()}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-100"
+                className="hidden sm:block text-sm text-lime/70 hover:text-lime"
                 title={session.user.email ?? undefined}
               >
-                <LogOut size={18} />
                 Sign out
               </button>
             ) : (
-              <Link
-                to="/login"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:bg-gray-100"
-              >
-                <LogIn size={18} />
+              <Link to="/login" className="hidden sm:block text-sm text-lime/70 hover:text-lime">
                 Admin
               </Link>
             )}
-          </nav>
+            <Link to="/calculator" className="btn btn-lime">
+              Calculator
+            </Link>
+          </div>
         </div>
+
+        {/* Small screens: links on their own row */}
+        <nav className="md:hidden flex items-center gap-6 pb-3 -mt-1">
+          {NAV.map(({ to, label }) => navLink(to, label))}
+          {session ? (
+            <button onClick={() => signOut()} className="text-sm text-lime/70 sm:hidden">
+              Sign out
+            </button>
+          ) : (
+            <Link to="/login" className="text-sm text-lime/70 sm:hidden">
+              Admin
+            </Link>
+          )}
+        </nav>
       </div>
     </header>
   );
