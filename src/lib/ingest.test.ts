@@ -21,11 +21,18 @@ describe("pdfToText", () => {
 describe("extractReport", () => {
   it("recognises a G&T report and reads every region", async () => {
     const extracted = await extractReport("2605_Q2_2026-TPI.pdf", pdf);
-    expect(extracted.kind).toBe("gt_tpi");
-    if (extracted.kind !== "gt_tpi") return;
     expect(extracted.report.period.label).toBe("Q2 2026");
     expect(extracted.missingRegions).toEqual([]);
     const london = extracted.report.rows.find((r) => r.region === "Greater London");
     expect(london?.forecasts[0]).toEqual({ year: 2026, changePct: 3.75, previousChangePct: 3.25 });
+  });
+});
+
+describe("extractReport on an unsupported PDF", () => {
+  it("rejects it with a clear message", async () => {
+    const other = readFileSync(new URL("./tpi/__fixtures__/not-a-tpi-report.pdf", import.meta.url));
+    await expect(extractReport("cost-guide.pdf", other)).rejects.toThrow(
+      /only Gardiner & Theobald/i,
+    );
   });
 });

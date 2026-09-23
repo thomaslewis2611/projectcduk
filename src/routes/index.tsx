@@ -1,14 +1,8 @@
 import * as React from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  fetchReports,
-  fetchRegions,
-  fetchBuildingTypes,
-  fetchYears,
-  fetchDataPointCount,
-} from "@/lib/data.functions";
-import type { Report } from "@/lib/data.functions";
-import { FileText, TrendingUp, BarChart3, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, FileText, MessageCircle, TrendingUp } from "lucide-react";
+import { fetchReports, type Report } from "@/lib/data.functions";
+import { fetchTpiForecasts, type TpiForecastRow } from "@/lib/tpi.functions";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -16,152 +10,148 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const [reports, setReports] = React.useState<Report[]>([]);
-  const [regions, setRegions] = React.useState<string[]>([]);
-  const [buildingTypes, setBuildingTypes] = React.useState<string[]>([]);
-  const [years, setYears] = React.useState<number[]>([]);
-  const [totalDataPoints, setTotalDataPoints] = React.useState(0);
+  const [forecasts, setForecasts] = React.useState<TpiForecastRow[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const load = async () => {
-      try {
-        const [reportsData, regionsData, bts, yearsData, dataPointCount] = await Promise.all([
-          fetchReports(),
-          fetchRegions(),
-          fetchBuildingTypes(),
-          fetchYears(),
-          fetchDataPointCount(),
-        ]);
-
-        setReports(reportsData);
-        setRegions(regionsData);
-        setBuildingTypes(bts);
-        setYears(yearsData);
-        setTotalDataPoints(dataPointCount);
-      } catch (err) {
-        console.error("Failed to load dashboard data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+    Promise.all([fetchReports(), fetchTpiForecasts()])
+      .then(([r, f]) => {
+        setReports(r);
+        setForecasts(f);
+      })
+      .catch((err) => console.error("Failed to load dashboard data:", err))
+      .finally(() => setLoading(false));
   }, []);
 
-  const completedReports = reports.filter((r) => r.status === "completed").length;
+  // Forecasts arrive ordered by report period, so the last row is from the latest report.
+  const latest = forecasts[forecasts.length - 1];
+  const latestRows = latest
+    ? forecasts.filter(
+        (f) => f.period_year === latest.period_year && f.period_quarter === latest.period_quarter,
+      )
+    : [];
+  const headlineYear = latestRows.length
+    ? Math.min(...latestRows.map((f) => f.forecast_year))
+    : null;
+  const find = (region: string) =>
+    latestRows.find((f) => f.region === region && f.forecast_year === headlineYear);
+  const source = latest ? `${latest.publisher} ${latest.period_label}` : null;
 
   return (
     <div className="space-y-8">
-      {/* Hero */}
-      <div className="text-center py-8">
-        <h1 className="text-4xl font-bold text-gradient mb-2">UK Construction Price Index</h1>
+      <div className="text-center py-6">
+        <h1 className="text-4xl font-bold text-gradient mb-2">UK tender price inflation</h1>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Analysis tool for UK construction price data. Explore price trends, compare build costs
-          across regions and building types, and ask questions using AI-powered chat.
+          Consultants' forecasts for how construction tender prices will move, by region and year,
+          and how those forecasts have been revised.
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card text-center">
-          <div className="text-3xl font-bold text-cpi-blue">{reports.length}</div>
-          <p className="text-sm text-gray-600 mt-1">Reports Ingested</p>
+      {loading ? (
+        <p className="text-center text-gray-500">Loading…</p>
+      ) : !latest ? (
+        <div className="card text-center py-12">
+          <TrendingUp size={48} className="mx-auto text-gray-300 mb-4" />
+          <p className="text-gray-500">No forecasts imported yet.</p>
         </div>
-        <div className="card text-center">
-          <div className="text-3xl font-bold text-cpi-green">{totalDataPoints}</div>
-          <p className="text-sm text-gray-600 mt-1">Data Points</p>
-        </div>
-        <div className="card text-center">
-          <div className="text-3xl font-bold text-cpi-orange">{regions.length}</div>
-          <p className="text-sm text-gray-600 mt-1">Regions</p>
-        </div>
-        <div className="card text-center">
-          <div className="text-3xl font-bold text-purple-600">{buildingTypes.length}</div>
-          <p className="text-sm text-gray-600 mt-1">Building Types</p>
-        </div>
-      </div>
-
-      {/* Upload CTA + Recent Reports */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <div className="card">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <Upload size={20} />
-              Upload a Report
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Upload PDF price index reports to start building your data set.
-            </p>
-            <Link to="/reports" className="btn btn-primary w-full flex justify-center">
-              Go to Reports
-            </Link>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <HeadlineTile
+            label={`UK average, ${headlineYear}`}
+            row={find("UK Average")}
+            source={source}
+          />
+          <HeadlineTile
+            label={`Greater London, ${headlineYear}`}
+            row={find("Greater London")}
+            source={source}
+          />
+          <div className="card text-center">
+            <div className="text-3xl font-bold text-gray-900">{latest.period_label}</div>
+            <p className="text-sm text-gray-600 mt-1">Latest report</p>
+            <p className="text-xs text-gray-500 mt-2">{latest.publisher}</p>
+          </div>
+          <div className="card text-center">
+            <div className="text-3xl font-bold text-gray-900">{reports.length}</div>
+            <p className="text-sm text-gray-600 mt-1">Reports imported</p>
           </div>
         </div>
+      )}
 
-        <div className="lg:col-span-2">
-          <div className="card">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <FileText size={20} />
-              Recent Reports
-            </h3>
-            {loading ? (
-              <p className="text-gray-500">Loading…</p>
-            ) : reports.length === 0 ? (
-              <p className="text-gray-400 text-sm">No reports uploaded yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {reports.slice(0, 5).map((report) => (
-                  <div
-                    key={report.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-900">{report.title || report.filename}</p>
-                      <p className="text-sm text-gray-600">
-                        {report.quarter && `${report.quarter} · `}
-                        {report.year}
-                      </p>
-                    </div>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        report.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : report.status === "failed"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {report.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <Link to="/forecasts" className="card hover:border-cpi-blue transition-colors">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <TrendingUp size={20} />
+            Forecasts by region
+          </h3>
+          <p className="text-sm text-gray-600">
+            The latest forecast for every region, and how each year's forecast has moved from report
+            to report.
+          </p>
+        </Link>
+        <Link to="/chat" className="card hover:border-cpi-blue transition-colors">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+            <MessageCircle size={20} />
+            Ask a question
+          </h3>
+          <p className="text-sm text-gray-600">
+            e.g. "Roughly how much will tender prices rise in the North West from 2026 to 2029?"
+          </p>
+        </Link>
       </div>
 
-      {/* Chart placeholder */}
       <div className="card">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
-          <TrendingUp size={20} />
-          Price Index Trends
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <FileText size={20} />
+          Recent reports
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Filter by region, building type, and year to see how prices have changed over time.
-        </p>
         {reports.length === 0 ? (
-          <div className="h-64 flex flex-col items-center justify-center text-gray-400">
-            <TrendingUp size={48} className="mb-3 opacity-30" />
-            <p>Upload reports to see trend charts.</p>
-          </div>
+          <p className="text-gray-400 text-sm">No reports imported yet.</p>
         ) : (
-          <div className="h-64 flex items-center justify-center">
-            <Link to="/charts" className="text-cpi-blue hover:underline text-sm font-medium">
-              Go to Charts page
-            </Link>
-          </div>
+          <ul className="divide-y divide-gray-100">
+            {reports.slice(0, 5).map((report) => (
+              <li key={report.id} className="py-2 flex justify-between text-sm">
+                <span className="text-gray-900">{report.title ?? report.filename}</span>
+                <span className="text-gray-500">{report.quarter}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+function HeadlineTile({
+  label,
+  row,
+  source,
+}: {
+  label: string;
+  row: TpiForecastRow | undefined;
+  source: string | null;
+}) {
+  const now = row?.change_pct ?? null;
+  const prev = row?.previous_change_pct ?? null;
+  const revised = now !== null && prev !== null && now !== prev;
+  const Icon = revised && now! > prev! ? ArrowUp : ArrowDown;
+  return (
+    <div className="card text-center">
+      <div className="text-3xl font-bold text-cpi-blue">
+        {now === null ? "N/A" : `${now.toFixed(2)}%`}
+      </div>
+      <p className="text-sm text-gray-600 mt-1">{label}</p>
+      <p className="text-xs text-gray-500 mt-2 inline-flex items-center gap-1">
+        {revised ? (
+          <>
+            <Icon size={12} aria-hidden />
+            {now! > prev! ? "up" : "down"} from {prev!.toFixed(2)}%
+          </>
+        ) : prev !== null ? (
+          "unchanged"
+        ) : null}
+      </p>
+      {source && <p className="text-xs text-gray-500">{source}</p>}
     </div>
   );
 }

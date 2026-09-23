@@ -106,30 +106,30 @@ Status: ☐ todo · ◐ in progress · ☑ done
 | 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                                                | P2  | ☐                                                                   |
 | 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                                          | P1  | ☐                                                                   |
 | 1.7  | Parsers for other consultants' reports (as they're added)                                                                                           | P1  | ☐ _needs sample PDFs_                                               |
-| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☐ _needs decision_                                                  |
+| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☑ removed — site is TPI-only (migration 004 drops the tables)       |
 
 ### Phase 2 — Useful product
 
-| #   | Item                                                                                                           | P   | Status                           |
-| --- | -------------------------------------------------------------------------------------------------------------- | --- | -------------------------------- |
-| 2.0 | Forecasts page: latest regional table with revisions + "how the forecasts moved" chart                         | P0  | ☑                                |
-| 2.1 | Chat: OpenAI only, answers from TPI forecasts; later move from "send all data" to tool calls                   | P1  | ◐ OpenAI-only + TPI context done |
-| 2.2 | Chat rate limiting (real KV namespace) + request size limits                                                   | P1  | ☐                                |
-| 2.3 | Dashboard/charts/compare rework around TPI data; URL-driven filters (shareable links)                          | P1  | ☐ depends on 1.8                 |
-| 2.4 | Escalation calculator: "£X budget priced in Q1 2024 — what is it in Q4 2027?" by region, compounding forecasts | P1  | ☐                                |
-| 2.5 | CSV export of any filtered view                                                                                | P2  | ☐                                |
-| 2.6 | Supplement with open data (ONS construction output & price indices)                                            | P2  | ☐                                |
+| #   | Item                                                                                                           | P   | Status                                                       |
+| --- | -------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------ |
+| 2.0 | Forecasts page: latest regional table with revisions + "how the forecasts moved" chart                         | P0  | ☑                                                            |
+| 2.1 | Chat: OpenAI only, answers from TPI forecasts; later move from "send all data" to tool calls                   | P1  | ◐ OpenAI-only + TPI context done                             |
+| 2.2 | Chat rate limiting (real KV namespace) + request size limits                                                   | P1  | ☐                                                            |
+| 2.3 | Dashboard/charts/compare rework around TPI data                                                                | P1  | ☑ dashboard rebuilt around TPI; compare/charts pages removed |
+| 2.4 | Escalation calculator: "£X budget priced in Q1 2024 — what is it in Q4 2027?" by region, compounding forecasts | P1  | ☐                                                            |
+| 2.5 | CSV export of any filtered view                                                                                | P2  | ☐                                                            |
+| 2.6 | Supplement with open data (ONS construction output & price indices)                                            | P2  | ☐                                                            |
 
 ### Phase 3 — Ship it
 
-| #   | Item                                                                                      | P   | Status |
-| --- | ----------------------------------------------------------------------------------------- | --- | ------ |
-| 3.1 | Cloudflare deploy: real KV id, secrets via `wrangler secret`, env via Workers bindings    | P1  | ☐      |
-| 3.2 | Preview deploys per PR                                                                    | P2  | ☐      |
-| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐      |
-| 3.4 | README rewrite to match reality                                                           | P1  | ☐      |
-| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☐      |
-| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑      |
+| #   | Item                                                                                      | P   | Status                                                                |
+| --- | ----------------------------------------------------------------------------------------- | --- | --------------------------------------------------------------------- |
+| 3.1 | Cloudflare deploy: real KV id, secrets via `wrangler secret`, env via Workers bindings    | P1  | ☐                                                                     |
+| 3.2 | Preview deploys per PR                                                                    | P2  | ☐                                                                     |
+| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐                                                                     |
+| 3.4 | README rewrite to match reality                                                           | P1  | ☑                                                                     |
+| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☑ also removed date-fns, react-markdown, sonner, clsx, tailwind-merge |
+| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑                                                                     |
 
 ---
 
@@ -140,6 +140,8 @@ Status: ☐ todo · ◐ in progress · ☑ done
 - **2026-09-23 (pm)**: Source = Gardiner & Theobald TPI reports (19, Q4 2021 → Autumn 2026). Parser,
   schema, import script, Forecasts page, admin auth, OpenAI-only chat. 45 tests. First real run of the
   app found and fixed the missing styling.
+- **2026-09-23 (late)**: Removed the building type / £ per sqft model (pages, server functions,
+  generic parser, tables). Dashboard rebuilt around TPI. README rewritten.
 
 ## Open questions (owner: Thomas)
 
@@ -147,14 +149,14 @@ Status: ☐ todo · ◐ in progress · ☑ done
 2. ~~Who uploads?~~ — single admin for now.
 3. **Who is it for, and is it paid?** Affects rate limits and chat cost.
 4. ~~AI provider~~ — OpenAI for now.
-5. **Building types / £ per sqft** (1.8): keep those pages for a future source, or remove them?
+5. ~~Building types / £ per sqft~~ — removed; the site is TPI-focused.
 6. **Which other consultants' reports** should be added next?
 
 ## Running the import (locally)
 
 ```bash
 cp .env.example .env               # fill in SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY
-npx supabase db push               # applies migrations 002 and 003
+npx supabase db push               # applies migrations 002–004
 npm run import-reports -- ~/path/to/projectcduk-reports --dry-run
 npm run import-reports -- ~/path/to/projectcduk-reports
 ```

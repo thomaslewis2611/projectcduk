@@ -48,15 +48,13 @@ for (const file of files) {
     const summary = describeExtracted(extracted);
 
     if (dryRun) {
-      const ok = extracted.kind === "gt_tpi" && extracted.missingRegions.length === 0;
+      const ok = extracted.missingRegions.length === 0;
       if (!ok) failures++;
       console.log(`${ok ? "✓" : "✗"} ${file}\n    ${summary}`);
-      if (extracted.kind === "gt_tpi") {
-        const uk = extracted.report.rows.find((r) => r.region === "UK Average");
-        if (uk) {
-          const values = uk.forecasts.map((f) => `${f.year}: ${f.changePct ?? "N/A"}%`);
-          console.log(`    UK Average ${values.join("  ")}`);
-        }
+      const uk = extracted.report.rows.find((r) => r.region === "UK Average");
+      if (uk) {
+        const values = uk.forecasts.map((f) => `${f.year}: ${f.changePct ?? "N/A"}%`);
+        console.log(`    UK Average ${values.join("  ")}`);
       }
       continue;
     }
