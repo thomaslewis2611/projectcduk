@@ -27,14 +27,26 @@ export function useAdmin(): AdminState {
       if (!cancelled) setState({ session, isAdmin: admin, loading: false });
     };
 
-    supabase.auth.getSession().then(({ data }) => update(data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      update(session);
-    });
+    // If the browser Supabase client isn't configured (missing VITE_* at build
+    // time), treat everyone as signed out rather than breaking every page.
+    let unsubscribe = () => {};
+    try {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => update(data.session))
+        .catch(() => update(null));
+      const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+        update(session);
+      });
+      unsubscribe = () => sub.subscription.unsubscribe();
+    } catch (err) {
+      console.error("[useAdmin] Sign-in unavailable:", err);
+      update(null);
+    }
 
     return () => {
       cancelled = true;
-      sub.subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 

@@ -48,10 +48,12 @@ PDF extraction runs on Cloudflare Workers (BACKLOG 1.3).
 
 ```bash
 npx wrangler login          # once
-npm run deploy              # builds with .env's VITE_* values, deploys the Worker
+npm run deploy              # checks .env, builds (bakes in the VITE_* values), deploys
 npm run deploy:secrets      # once, and after changing them: copies SUPABASE_URL,
                             # SUPABASE_SERVICE_ROLE_KEY and ADMIN_EMAIL from .env
 ```
+
+Both commands stop with a message if `.env` is missing or a value is empty.
 
 The site is served at `https://projectcduk.<your-subdomain>.workers.dev`.
 
