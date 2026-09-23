@@ -1,5 +1,6 @@
 /**
- * Deploy helpers that read .env and refuse to continue on missing values.
+ * Deploy helpers that read .env (or the environment, in CI) and refuse to
+ * continue on missing values.
  *
  *   tsx scripts/deploy-env.ts check     # before building: the VITE_* values are baked into the site
  *   tsx scripts/deploy-env.ts secrets   # copy server-side values into Cloudflare Worker secrets
@@ -17,23 +18,23 @@ if (mode !== "check" && mode !== "secrets") {
   process.exit(1);
 }
 
-if (!existsSync(".env")) {
-  console.error(
-    "No .env file in this folder. Create it from .env.example and fill in the values first.",
-  );
-  process.exit(1);
-}
-process.loadEnvFile(".env");
+// Values come from .env locally, or from the environment in CI (GitHub Actions).
+const hasEnvFile = existsSync(".env");
+if (hasEnvFile) process.loadEnvFile(".env");
 
 const needed = mode === "check" ? BUILD_VARS : SECRET_VARS;
 const missing = needed.filter((name) => !process.env[name]?.trim());
 if (missing.length > 0) {
-  console.error(`Missing values in .env: ${missing.join(", ")}`);
+  console.error(
+    hasEnvFile
+      ? `Missing values in .env: ${missing.join(", ")}`
+      : `No .env file, and not set in the environment: ${missing.join(", ")}. Create .env from .env.example and fill in the values.`,
+  );
   process.exit(1);
 }
 
 if (mode === "check") {
-  console.log(`.env OK: ${BUILD_VARS.join(", ")} set.`);
+  console.log(`Config OK: ${BUILD_VARS.join(", ")} set.`);
   process.exit(0);
 }
 

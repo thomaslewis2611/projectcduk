@@ -46,6 +46,14 @@ PDF extraction runs on Cloudflare Workers (BACKLOG 1.3).
 
 ## Deploying (Cloudflare Workers)
 
+**Automatic:** every merge to `main` deploys, after lint, typecheck, build and tests pass
+(`.github/workflows/ci.yml`). It needs four repository secrets (GitHub → Settings → Secrets
+and variables → Actions): `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`. To redeploy without a change, use
+**Run workflow** on the CI workflow's Actions page.
+
+**Manual**, from your computer:
+
 ```bash
 npx wrangler login          # once
 npm run deploy              # checks .env, builds (bakes in the VITE_* values), deploys
@@ -53,7 +61,10 @@ npm run deploy:secrets      # once, and after changing them: copies SUPABASE_URL
                             # SUPABASE_SERVICE_ROLE_KEY and ADMIN_EMAIL from .env
 ```
 
-Both commands stop with a message if `.env` is missing or a value is empty.
+Both commands stop with a message if a value is missing (from `.env`, or the environment in CI).
+
+Server-side values (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`) are Worker
+secrets: set them once with `npm run deploy:secrets`; they persist across deploys.
 
 The site is served at `https://projectcduk.<your-subdomain>.workers.dev`.
 
