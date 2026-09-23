@@ -94,19 +94,19 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 ### Phase 1 — Real data in
 
-| #    | Item                                                                                                                                                | P   | Status                                                              |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------- |
-| 1.1  | Confirm source report(s) and licensing                                                                                                              | P0  | ☑ free consultant reports; G&T TPI first; credit the source on-page |
-| 1.2  | G&T TPI parser (regional forecast table) with fixture tests for every layout seen 2021–2026                                                         | P0  | ☑                                                                   |
-| 1.2a | Schema for TPI forecasts (`tpi_forecasts`, `tpi_forecast_rows` view, one report per publisher+period)                                               | P0  | ☑ migration 003, tested on Postgres 16                              |
-| 1.2b | Fix PDF text extraction running table cells together (custom pdf-parse page renderer)                                                               | P0  | ☑                                                                   |
-| 1.2c | Local import script with `--dry-run` / `--dump-text`                                                                                                | P0  | ☑ **run it on the 19 PDFs** (see README below)                      |
-| 1.3  | Swap `pdf-parse` for a Workers-compatible extractor (`unpdf`), or move ingestion elsewhere — the admin upload page won't work on Workers until then | P1  | ☐                                                                   |
-| 1.4  | Ingestion preview: show extracted rows for review before committing                                                                                 | P1  | ☐                                                                   |
-| 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                                                | P2  | ☐                                                                   |
-| 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                                          | P1  | ☐                                                                   |
-| 1.7  | Parsers for other consultants' reports (as they're added)                                                                                           | P1  | ☐ _needs sample PDFs_                                               |
-| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☑ removed — site is TPI-only (migration 004 drops the tables)       |
+| #    | Item                                                                                                                                                | P   | Status                                                                    |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------- |
+| 1.1  | Confirm source report(s) and licensing                                                                                                              | P0  | ☑ free consultant reports; G&T TPI first; credit the source on-page       |
+| 1.2  | G&T TPI parser (regional forecast table) with fixture tests for every layout seen 2021–2026                                                         | P0  | ☑                                                                         |
+| 1.2a | Schema for TPI forecasts (`tpi_forecasts`, `tpi_forecast_rows` view, one report per publisher+period)                                               | P0  | ☑ migration 003, tested on Postgres 16                                    |
+| 1.2b | Fix PDF text extraction running table cells together (custom pdf-parse page renderer)                                                               | P0  | ☑                                                                         |
+| 1.2c | Local import script with `--dry-run` / `--dump-text`                                                                                                | P0  | ☑ all 19 G&T reports (Q4 2021 → Autumn 2026) imported, 12/12 regions each |
+| 1.3  | Swap `pdf-parse` for a Workers-compatible extractor (`unpdf`), or move ingestion elsewhere — the admin upload page won't work on Workers until then | P1  | ☐                                                                         |
+| 1.4  | Ingestion preview: show extracted rows for review before committing                                                                                 | P1  | ☐                                                                         |
+| 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                                                | P2  | ☐                                                                         |
+| 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                                          | P1  | ☐                                                                         |
+| 1.7  | Parsers for other consultants' reports (as they're added)                                                                                           | P1  | ☐ _needs sample PDFs_                                                     |
+| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☑ removed — site is TPI-only (migration 004 drops the tables)             |
 
 ### Phase 2 — Useful product
 
@@ -142,6 +142,9 @@ Status: ☐ todo · ◐ in progress · ☑ done
   app found and fixed the missing styling.
 - **2026-09-23 (late)**: Removed the building type / £ per sqft model (pages, server functions,
   generic parser, tables). Dashboard rebuilt around TPI. README rewritten.
+
+- **2026-09-23 (eve)**: Supabase project set up (migrations 001–004 applied), all 19 reports
+  imported, site running locally with admin sign-in. Chat parked. CSRF protection added.
 
 ## Open questions (owner: Thomas)
 
