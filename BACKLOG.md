@@ -94,19 +94,19 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 ### Phase 1 — Real data in
 
-| #    | Item                                                                                                                                                | P   | Status                                                                    |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------- |
-| 1.1  | Confirm source report(s) and licensing                                                                                                              | P0  | ☑ free consultant reports; G&T TPI first; credit the source on-page       |
-| 1.2  | G&T TPI parser (regional forecast table) with fixture tests for every layout seen 2021–2026                                                         | P0  | ☑                                                                         |
-| 1.2a | Schema for TPI forecasts (`tpi_forecasts`, `tpi_forecast_rows` view, one report per publisher+period)                                               | P0  | ☑ migration 003, tested on Postgres 16                                    |
-| 1.2b | Fix PDF text extraction running table cells together (custom pdf-parse page renderer)                                                               | P0  | ☑                                                                         |
-| 1.2c | Local import script with `--dry-run` / `--dump-text`                                                                                                | P0  | ☑ all 19 G&T reports (Q4 2021 → Autumn 2026) imported, 12/12 regions each |
-| 1.3  | Swap `pdf-parse` for a Workers-compatible extractor (`unpdf`), or move ingestion elsewhere — the admin upload page won't work on Workers until then | P1  | ☐                                                                         |
-| 1.4  | Ingestion preview: show extracted rows for review before committing                                                                                 | P1  | ☐                                                                         |
-| 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                                                | P2  | ☐                                                                         |
-| 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                                          | P1  | ☐                                                                         |
-| 1.7  | Parsers for other consultants' reports (as they're added)                                                                                           | P1  | ☐ _needs sample PDFs_                                                     |
-| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it                  | P1  | ☑ removed — site is TPI-only (migration 004 drops the tables)             |
+| #    | Item                                                                                                                               | P   | Status                                                                                                 |
+| ---- | ---------------------------------------------------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------ |
+| 1.1  | Confirm source report(s) and licensing                                                                                             | P0  | ☑ free consultant reports; G&T TPI first; credit the source on-page                                    |
+| 1.2  | G&T TPI parser (regional forecast table) with fixture tests for every layout seen 2021–2026                                        | P0  | ☑                                                                                                      |
+| 1.2a | Schema for TPI forecasts (`tpi_forecasts`, `tpi_forecast_rows` view, one report per publisher+period)                              | P0  | ☑ migration 003, tested on Postgres 16                                                                 |
+| 1.2b | Fix PDF text extraction running table cells together (custom pdf-parse page renderer)                                              | P0  | ☑                                                                                                      |
+| 1.2c | Local import script with `--dry-run` / `--dump-text`                                                                               | P0  | ☑ all 19 G&T reports (Q4 2021 → Autumn 2026) imported, 12/12 regions each                              |
+| 1.3  | Bring back admin web upload on Workers                                                                                             | P1  | ☐ web upload removed for the Workers deploy; re-add with a Workers-compatible extractor (e.g. `unpdf`) |
+| 1.4  | Ingestion preview: show extracted rows for review before committing                                                                | P1  | ☐                                                                                                      |
+| 1.5  | G&T "comparison of published forecasts" table (BCIS, AECOM, Arcadis) as extra series                                               | P2  | ☐                                                                                                      |
+| 1.6  | Move upload to direct-to-Storage signed URL (no base64 through the Worker)                                                         | P1  | ☐                                                                                                      |
+| 1.7  | Parsers for other consultants' reports (as they're added)                                                                          | P1  | ☐ _needs sample PDFs_                                                                                  |
+| 1.8  | Decide the fate of the building type × size band × £/sqft model (dashboard, compare, charts pages) — no current source provides it | P1  | ☑ removed — site is TPI-only (migration 004 drops the tables)                                          |
 
 ### Phase 2 — Useful product
 
@@ -122,14 +122,14 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 ### Phase 3 — Ship it
 
-| #   | Item                                                                                      | P   | Status                                                                |
-| --- | ----------------------------------------------------------------------------------------- | --- | --------------------------------------------------------------------- |
-| 3.1 | Cloudflare deploy: real KV id, secrets via `wrangler secret`, env via Workers bindings    | P1  | ☐                                                                     |
-| 3.2 | Preview deploys per PR                                                                    | P2  | ☐                                                                     |
-| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐                                                                     |
-| 3.4 | README rewrite to match reality                                                           | P1  | ☑                                                                     |
-| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☑ also removed date-fns, react-markdown, sonner, clsx, tailwind-merge |
-| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑                                                                     |
+| #   | Item                                                                                      | P   | Status                                                                                                  |
+| --- | ----------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------- |
+| 3.1 | Cloudflare deploy                                                                         | P1  | ☑ `npm run deploy` + `deploy:secrets`; unused KV binding removed; verified in the local Workers runtime |
+| 3.2 | Preview deploys per PR                                                                    | P2  | ☐                                                                                                       |
+| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐                                                                                                       |
+| 3.4 | README rewrite to match reality                                                           | P1  | ☑                                                                                                       |
+| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☑ also removed date-fns, react-markdown, sonner, clsx, tailwind-merge                                   |
+| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑                                                                                                       |
 
 ---
 
@@ -147,6 +147,9 @@ Status: ☐ todo · ◐ in progress · ☑ done
   imported, site running locally with admin sign-in. Chat parked. CSRF protection added.
 
 - **2026-09-23 (night)**: PR #1 opened to merge into `main`. Escalation calculator added.
+
+- **2026-09-23 (late night)**: Made the site deployable to Cloudflare Workers (read-only; imports stay
+  local). Verified every page in the local Workers runtime.
 
 ## Open questions (owner: Thomas)
 

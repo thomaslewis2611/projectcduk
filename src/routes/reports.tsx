@@ -2,11 +2,9 @@ import * as React from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { fetchReports, deleteReport } from "@/lib/data.functions";
 import type { Report } from "@/lib/data.functions";
-import { FileText, RefreshCw, Trash2, Upload } from "lucide-react";
+import { FileText, RefreshCw, Trash2 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
-import ReportUploader from "@/components/ReportUploader";
 import { useAdmin } from "@/lib/use-admin";
-import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/reports")({
   component: ReportsPage,
@@ -50,9 +48,7 @@ function ReportsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Reports</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage your uploaded price index report PDFs.
-          </p>
+          <p className="text-sm text-gray-500 mt-1">The reports the forecasts come from.</p>
         </div>
         <button onClick={loadReports} className="btn btn-outline">
           <RefreshCw size={16} />
@@ -60,15 +56,10 @@ function ReportsPage() {
         </button>
       </div>
 
-      {/* Upload section (admin only) */}
-      {isAdmin && session ? (
-        <ReportUploader accessToken={session.access_token} onUploadSuccess={loadReports} />
-      ) : (
+      {isAdmin && (
         <p className="text-sm text-gray-500">
-          <Link to="/login" className="text-cpi-blue hover:underline">
-            Sign in as admin
-          </Link>{" "}
-          to upload or delete reports.
+          To add reports, run <code>npm run import-reports</code> on your computer (see the README).
+          You can delete reports here.
         </p>
       )}
 
@@ -84,7 +75,7 @@ function ReportsPage() {
       ) : reports.length === 0 ? (
         <div className="card text-center py-12">
           <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">No reports uploaded yet.</p>
+          <p className="text-gray-500">No reports imported yet.</p>
         </div>
       ) : (
         <div className="overflow-x-auto border border-gray-200 rounded-lg">

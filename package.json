@@ -10,14 +10,14 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "deploy": "vite build && wrangler deploy --config dist/server/wrangler.json",
-    "deploy:dev": "vite build --mode development && wrangler deploy --config dist/server/wrangler.json --env",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import-reports": "tsx scripts/import-reports.ts"
+    "import-reports": "tsx scripts/import-reports.ts",
+    "deploy:secrets": "for k in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY ADMIN_EMAIL; do grep \"^$k=\" .env | cut -d= -f2- | wrangler secret put $k --name projectcduk; done"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",

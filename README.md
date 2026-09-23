@@ -6,7 +6,7 @@ quarterly reports, starting with Gardiner & Theobald's Tender Price Indicator.
 - **Escalation calculator**: move a cost between quarters by region, with the working shown.
 - **Forecasts**: the latest forecast for each region, how it was revised since the
   previous report, and how each year's forecast has moved from report to report.
-- **Admin import**: a single admin imports report PDFs (upload page or a local script).
+- **Admin import**: a single admin imports report PDFs with a local script.
 
 See [BACKLOG.md](BACKLOG.md) for status and next steps.
 
@@ -40,15 +40,27 @@ npm run import-reports -- <folder-of-pdfs> --dump-text  # also save extracted te
 Each report is stored once per publisher and period; delete a report to re-import it.
 PDFs that aren't a supported layout are rejected with a message.
 
-The admin upload page (`/reports`) uses the same pipeline but needs a Node runtime;
-it won't work on Cloudflare Workers until the PDF library is replaced (BACKLOG 1.3).
+Reports are imported from your computer with this script; the website itself is
+read-only (the admin can delete reports on `/reports`). Web upload will come back once
+PDF extraction runs on Cloudflare Workers (BACKLOG 1.3).
+
+## Deploying (Cloudflare Workers)
+
+```bash
+npx wrangler login          # once
+npm run deploy              # builds with .env's VITE_* values, deploys the Worker
+npm run deploy:secrets      # once, and after changing them: copies SUPABASE_URL,
+                            # SUPABASE_SERVICE_ROLE_KEY and ADMIN_EMAIL from .env
+```
+
+The site is served at `https://projectcduk.<your-subdomain>.workers.dev`.
 
 ## Code map
 
 | Path                        | What                                                          |
 | --------------------------- | ------------------------------------------------------------- |
 | `src/lib/tpi/gt-parser.ts`  | G&T report text → regional forecasts (pure, unit-tested)      |
-| `src/lib/ingest.server.ts`  | PDF → text → forecasts → Supabase (shared by upload + script) |
+| `src/lib/ingest.server.ts`  | PDF → text → forecasts → Supabase (used by the import script) |
 | `scripts/import-reports.ts` | Local bulk import                                             |
 | `src/lib/tpi.functions.ts`  | Forecast queries                                              |
 | `src/lib/tpi/escalation.ts` | Escalation maths (pure, unit-tested)                          |
