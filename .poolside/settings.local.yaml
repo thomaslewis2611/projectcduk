@@ -1,0 +1,40 @@
+tools:
+    shell:
+        allow:
+            - ls *
+            - which pool claude *
+            - echo *
+            - pool *
+            - claude *
+            - codex *
+            - cat *
+            - cd *
+            - head *
+            - timeout 60 pool exec *
+            - timeout 30 pool acp *
+            - which gtimeout
+            - date *
+            - mkdir *
+            - bash reports/audit_trail_runner.sh
+            - bash reports/audit_step.sh *
+            - /Users/thomaslewis/dev/projectcduk/reports/audit_trail_runner.sh
+            - /Users/thomaslewis/dev/projectcduk/reports/audit_step.sh *
+            - source *
+            - env
+            - grep *
+            - git status
+            - git branch *
+            - find *
+            - python3 *
+            - git log *
+            - git stash *
+            - git checkout *
+            - git diff *
+            - git status *
+            - tail *
+paths:
+    allow:
+        - path: /Users/thomaslewis/dev/projectcduk/.poolside/**
+          write: true
+        - path: /Users/thomaslewis/dev/projectcduk/reports/**
+          write: true
