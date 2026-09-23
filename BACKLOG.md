@@ -110,15 +110,15 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 ### Phase 2 — Useful product
 
-| #   | Item                                                                                                           | P   | Status                                                                                          |
-| --- | -------------------------------------------------------------------------------------------------------------- | --- | ----------------------------------------------------------------------------------------------- |
-| 2.0 | Forecasts page: latest regional table with revisions + "how the forecasts moved" chart                         | P0  | ☑                                                                                               |
-| 2.1 | AI chat over the forecasts                                                                                     | P2  | ⏸ parked — removed for now; restore from commit `079a7d5` (OpenAI, `src/lib/chat.functions.ts`) |
-| 2.2 | Chat rate limiting (if chat returns)                                                                           | P2  | ⏸ parked with 2.1                                                                               |
-| 2.3 | Dashboard/charts/compare rework around TPI data                                                                | P1  | ☑ dashboard rebuilt around TPI; compare/charts pages removed                                    |
-| 2.4 | Escalation calculator: "£X budget priced in Q1 2024 — what is it in Q4 2027?" by region, compounding forecasts | P1  | ☐                                                                                               |
-| 2.5 | CSV export of any filtered view                                                                                | P2  | ☐                                                                                               |
-| 2.6 | Supplement with open data (ONS construction output & price indices)                                            | P2  | ☐                                                                                               |
+| #   | Item                                                                                                                     | P   | Status                                                                                          |
+| --- | ------------------------------------------------------------------------------------------------------------------------ | --- | ----------------------------------------------------------------------------------------------- |
+| 2.0 | Forecasts page: latest regional table with revisions + "how the forecasts moved" chart                                   | P0  | ☑                                                                                               |
+| 2.1 | AI chat over the forecasts                                                                                               | P2  | ⏸ parked — removed for now; restore from commit `079a7d5` (OpenAI, `src/lib/chat.functions.ts`) |
+| 2.2 | Chat rate limiting (if chat returns)                                                                                     | P2  | ⏸ parked with 2.1                                                                               |
+| 2.3 | Dashboard/charts/compare rework around TPI data                                                                          | P1  | ☑ dashboard rebuilt around TPI; compare/charts pages removed                                    |
+| 2.4 | Escalation calculator: cost × region × base quarter → target quarter, compounding annual rates by quarter; shareable URL | P1  | ☑ `/calculator`                                                                                 |
+| 2.5 | CSV export of any filtered view                                                                                          | P2  | ☐                                                                                               |
+| 2.6 | Supplement with open data (ONS construction output & price indices)                                                      | P2  | ☐                                                                                               |
 
 ### Phase 3 — Ship it
 
@@ -145,6 +145,8 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 - **2026-09-23 (eve)**: Supabase project set up (migrations 001–004 applied), all 19 reports
   imported, site running locally with admin sign-in. Chat parked. CSRF protection added.
+
+- **2026-09-23 (night)**: PR #1 opened to merge into `main`. Escalation calculator added.
 
 ## Open questions (owner: Thomas)
 

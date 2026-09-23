@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Home, Upload, LogIn, LogOut, TrendingUp } from "lucide-react";
+import { Calculator, Home, Upload, LogIn, LogOut, TrendingUp } from "lucide-react";
 import { signOut, useAdmin } from "@/lib/use-admin";
 
 export default function Header() {
@@ -10,6 +10,7 @@ export default function Header() {
   const navItems = [
     { to: "/", label: "Dashboard", icon: Home },
     { to: "/forecasts", label: "Forecasts", icon: TrendingUp },
+    { to: "/calculator", label: "Calculator", icon: Calculator },
     { to: "/reports", label: "Reports", icon: Upload },
   ];
 
