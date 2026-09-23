@@ -122,14 +122,14 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 ### Phase 3 — Ship it
 
-| #   | Item                                                                                      | P   | Status                                                                                                  |
-| --- | ----------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------- |
-| 3.1 | Cloudflare deploy                                                                         | P1  | ☑ `npm run deploy` + `deploy:secrets`; unused KV binding removed; verified in the local Workers runtime |
-| 3.2 | Preview deploys per PR                                                                    | P2  | ☐                                                                                                       |
-| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐                                                                                                       |
-| 3.4 | README rewrite to match reality                                                           | P1  | ☑                                                                                                       |
-| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☑ also removed date-fns, react-markdown, sonner, clsx, tailwind-merge                                   |
-| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑                                                                                                       |
+| #   | Item                                                                                      | P   | Status                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------------------------------ |
+| 3.1 | Cloudflare deploy                                                                         | P1  | ☑ live at https://projectcduk.thomaslewis2611.workers.dev (`npm run deploy` + `deploy:secrets`, both check `.env` first) |
+| 3.2 | Preview deploys per PR                                                                    | P2  | ☐                                                                                                                        |
+| 3.3 | Error monitoring + structured logs                                                        | P2  | ☐                                                                                                                        |
+| 3.4 | README rewrite to match reality                                                           | P1  | ☑                                                                                                                        |
+| 3.5 | Remove unused code/deps: `cloudflare-env.ts`, `ai`, `@ai-sdk/openai`                      | P2  | ☑ also removed date-fns, react-markdown, sonner, clsx, tailwind-merge                                                    |
+| 3.6 | Fixed: site was unstyled (`border-border` broke Tailwind; stylesheet linked as `file://`) | P0  | ☑                                                                                                                        |
 
 ---
 
@@ -150,6 +150,9 @@ Status: ☐ todo · ◐ in progress · ☑ done
 
 - **2026-09-23 (late night)**: Made the site deployable to Cloudflare Workers (read-only; imports stay
   local). Verified every page in the local Workers runtime.
+
+- **2026-09-23 (live)**: Site live on Cloudflare Workers with all 19 G&T reports. First deploy went out
+  without config (git deleted `.env` on `checkout main`); deploy scripts now refuse missing values.
 
 ## Open questions (owner: Thomas)
 
